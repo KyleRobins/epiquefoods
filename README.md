@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Epique Foods
 
-## Getting Started
+Storefront for Epique Foods — a Kenyan agro-processing brand. Next.js 16 (App Router) +
+Tailwind CSS v4 + shadcn/ui (Base UI) + Motion. Product data is static (`lib/products.ts`);
+checkout hands off to WhatsApp rather than processing payments.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in values as needed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.example`. Nothing is required to run locally — defaults are used for the WhatsApp
+number and site URL. The contact form works without any email provider configured (it validates
+and logs submissions); set `RESEND_API_KEY` + `CONTACT_TO_EMAIL` to actually send email via
+[Resend](https://resend.com).
 
-## Learn More
+## Editing products
 
-To learn more about Next.js, take a look at the following resources:
+Products, prices, descriptions and images are all in `lib/products.ts`. Product images live in
+`public/images/products/`. A product with no priced size automatically shows an "Enquire on
+WhatsApp" call to action instead of Add to Cart.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — local dev server (Turbopack)
+- `npm run build` — production build
+- `npm run start` — run the production build
+- `npm run lint` — ESLint
 
-## Deploy on Vercel
+## Security notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `proxy.ts` sets a per-request CSP nonce and strict security headers (see `next.config.ts` too).
+- The contact form is a Server Action (`app/actions/contact.ts`) with zod validation, a honeypot
+  field, and a per-IP rate limit. The rate limiter is in-memory — fine for this traffic volume,
+  but resets per server instance/cold start. If traffic grows, swap in Upstash Redis without
+  changing the call site.
+- Run `npm audit` after adding any dependency.
